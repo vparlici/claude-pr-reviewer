@@ -37,7 +37,8 @@ func TestReviewSuccess(t *testing.T) {
 	defer srv.Close()
 	stubEndpoint(t, srv)
 
-	got, err := Review(context.Background(), "secret-key", "the diff")
+	opts := Options{Model: "claude-test-model", MaxTokens: 1234}
+	got, err := Review(context.Background(), "secret-key", "the diff", opts)
 	if err != nil {
 		t.Fatalf("Review() error = %v", err)
 	}
@@ -45,11 +46,11 @@ func TestReviewSuccess(t *testing.T) {
 		t.Errorf("Review() = %q, want trimmed %q", got, "Looks good.")
 	}
 
-	if gotBody.Model != Model {
-		t.Errorf("request Model = %q, want %q", gotBody.Model, Model)
+	if gotBody.Model != opts.Model {
+		t.Errorf("request Model = %q, want %q", gotBody.Model, opts.Model)
 	}
-	if gotBody.MaxTokens != maxTokens {
-		t.Errorf("request MaxTokens = %d, want %d", gotBody.MaxTokens, maxTokens)
+	if gotBody.MaxTokens != opts.MaxTokens {
+		t.Errorf("request MaxTokens = %d, want %d", gotBody.MaxTokens, opts.MaxTokens)
 	}
 	if len(gotBody.Messages) != 1 || !strings.Contains(gotBody.Messages[0].Content, "the diff") {
 		t.Errorf("request Messages = %+v, want one message containing the diff", gotBody.Messages)
@@ -64,7 +65,7 @@ func TestReviewAPIError(t *testing.T) {
 	defer srv.Close()
 	stubEndpoint(t, srv)
 
-	_, err := Review(context.Background(), "k", "diff")
+	_, err := Review(context.Background(), "k", "diff", Options{Model: DefaultModel, MaxTokens: DefaultMaxTokens})
 	if err == nil {
 		t.Fatal("Review() error = nil, want error")
 	}
@@ -81,7 +82,7 @@ func TestReviewEmptyContent(t *testing.T) {
 	defer srv.Close()
 	stubEndpoint(t, srv)
 
-	_, err := Review(context.Background(), "k", "diff")
+	_, err := Review(context.Background(), "k", "diff", Options{Model: DefaultModel, MaxTokens: DefaultMaxTokens})
 	if err == nil {
 		t.Fatal("Review() error = nil, want error for empty review")
 	}
@@ -95,7 +96,7 @@ func TestReviewMalformedJSON(t *testing.T) {
 	defer srv.Close()
 	stubEndpoint(t, srv)
 
-	_, err := Review(context.Background(), "k", "diff")
+	_, err := Review(context.Background(), "k", "diff", Options{Model: DefaultModel, MaxTokens: DefaultMaxTokens})
 	if err == nil {
 		t.Fatal("Review() error = nil, want error for malformed JSON")
 	}

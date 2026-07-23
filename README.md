@@ -91,6 +91,9 @@ jobs:
         with:
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           github-token: ${{ github.token }}
+          # Optional overrides:
+          # model: claude-haiku-4-5
+          # max-tokens: "4096"
 ```
 
 That's it. Open a Pull Request and Claude will post its review automatically.
@@ -103,6 +106,8 @@ That's it. Open a Pull Request and Claude will post its review automatically.
 | ------------------- | -------- | -------------------- | -------------------------------------------------------- |
 | `anthropic-api-key` | Yes      | —                    | Your Anthropic API key (store it as a secret).           |
 | `github-token`      | No       | `${{ github.token }}` | Token used to read PR files and post the review comment. |
+| `model`             | No       | `claude-sonnet-5`    | Claude model ID for the review (e.g. `claude-haiku-4-5` for lower cost, `claude-opus-4-8` for max depth). |
+| `max-tokens`        | No       | `8192`               | Max tokens for the review response (thinking + output). Invalid values fall back to the default. |
 
 > **Note:** The workflow needs `pull-requests: write` permission so the action can post the review comment.
 
