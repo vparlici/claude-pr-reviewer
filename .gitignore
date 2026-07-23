@@ -1,0 +1,14 @@
+# Build artifacts
+/reviewer
+/reviewer.exe
+*.exe
+
+# Go
+*.test
+*.out
+vendor/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store

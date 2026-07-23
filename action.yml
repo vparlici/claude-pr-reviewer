@@ -1,0 +1,25 @@
+name: "Claude PR Reviewer"
+description: "Ultra-fast AI code reviews on Pull Requests using the Anthropic Claude API."
+author: "vparlici"
+
+branding:
+  icon: "eye"
+  color: "purple"
+
+inputs:
+  anthropic-api-key:
+    description: "Anthropic API key used to call the Claude Messages API."
+    required: true
+  github-token:
+    description: "GitHub token used to read PR files and post the review comment."
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "docker"
+  # Pre-built image pulled from GHCR — no compilation at run time.
+  # Published by .github/workflows/release.yml on each version tag.
+  image: "docker://ghcr.io/vparlici/claude-pr-reviewer:v1"
+  env:
+    ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+    GITHUB_TOKEN: ${{ inputs.github-token }}

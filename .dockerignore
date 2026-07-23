@@ -1,0 +1,12 @@
+# Keep the build context minimal.
+.git
+.github
+.gitignore
+.dockerignore
+*.md
+LICENSE
+reviewer
+reviewer.exe
+*.exe
+.idea/
+.vscode/

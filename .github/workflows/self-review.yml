@@ -1,0 +1,32 @@
+name: Self review
+
+# Runs the reviewer against this repo's own Pull Requests as an end-to-end
+# smoke test — exercises event parsing, the Claude API call, and posting the
+# comment in a real runner. Uses `go run .` so it works before any image is
+# published to GHCR. Forked PRs don't receive secrets, so this only runs for
+# branches pushed to this repository.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Run reviewer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: go run .
