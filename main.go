@@ -78,11 +78,11 @@ func reviewOptions() claude.Options {
 		MaxTokens: claude.DefaultMaxTokens,
 	}
 
-	if v := os.Getenv("CLAUDE_MODEL"); v != "" {
+	if v := strings.TrimSpace(os.Getenv("CLAUDE_MODEL")); v != "" {
 		opts.Model = v
 	}
 
-	if v := os.Getenv("CLAUDE_MAX_TOKENS"); v != "" {
+	if v := strings.TrimSpace(os.Getenv("CLAUDE_MAX_TOKENS")); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
 			opts.MaxTokens = n
 		} else {
