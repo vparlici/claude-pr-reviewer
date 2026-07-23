@@ -52,7 +52,7 @@ The system prompt explicitly forbids filler. No "Great code!", no whitespace nit
 | | **claude-pr-reviewer** | Commercial AI SaaS bots | Traditional linters |
 | --- | --- | --- | --- |
 | **Pricing** | Free / pay-per-token | $15–$30 / user / mo | Free |
-| **CI overhead** | Prebuilt Go binary, no deps | Docker / SaaS proxy | Fast |
+| **CI overhead** | Tiny prebuilt image, no install step | Heavy runtime or SaaS proxy | Fast |
 | **Logic & security context** | High (Claude Sonnet 5) | High | Low (syntax only) |
 | **Data privacy** | Direct to Anthropic | Through 3rd-party servers | Local |
 | **Setup** | A few lines of YAML | OAuth / app integration | Manual config |

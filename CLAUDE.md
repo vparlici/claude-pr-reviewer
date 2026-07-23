@@ -18,6 +18,15 @@ This repository hosts a lightweight, high-performance GitHub Action built in **G
     - **Anthropic API:** Use native HTTP requests via the standard `net/http` package (avoid unnecessary third-party wrappers).
 - **Environment Context:** The application relies on standard GitHub Action environment variables: `GITHUB_TOKEN`, `ANTHROPIC_API_KEY`, and `GITHUB_EVENT_PATH`. Optional overrides `CLAUDE_MODEL` and `CLAUDE_MAX_TOKENS` (mapped from the `model` and `max-tokens` action inputs) fall back to the defaults in `internal/claude` when unset or invalid.
 
+## Packaging & Distribution
+- **Docker container action (not composite `go run`):** The action is packaged as a Docker container action referencing a prebuilt image (`ghcr.io/vparlici/claude-pr-reviewer`), not a composite action that compiles at run time.
+    - **Why not composite `go run`/`go build`:** it would recompile the binary and re-download modules on *every* PR (~30-60s of wasted CI time per run, plus a `setup-go` step).
+    - **Why not a committed binary:** shipping per-platform binaries in the repo is ugly and hard to maintain.
+    - **Why Docker wins:** compile once at release time, ship a tiny static binary in a `distroless/static` image, and at run time only pull + exec — zero compilation, zero dependency install. Reproducible (pinned base image, bundled CA certs) and keeps the repo free of build artifacts.
+    - **Trade-off:** Docker actions run on Linux runners only. Acceptable here — the action targets `ubuntu-latest`.
+- **Build flags:** `CGO_ENABLED=0` for a fully static binary; `-trimpath -ldflags="-s -w"` to strip and shrink. Build the whole module (`go build .`), not `main.go`, so the `internal/` packages are included.
+- **Release flow:** pushing a `v*` tag triggers `.github/workflows/release.yml` (test → build → push image, tagged `vX.Y.Z` / `vX.Y` / `vX` / `latest`). The moving major **git** tag `v1` must be repointed manually (`git tag -f v1 <release> && git push -f origin v1`) so `uses: ...@v1` picks up the new `action.yml`.
+
 ## AI Integration & Prompting Guidelines
 - **Model Target:** Default to `claude-sonnet-5` (or the latest stable Sonnet release). The model and token budget are configurable per-run via the `model` / `max-tokens` action inputs; defaults live in `internal/claude` (`DefaultModel`, `DefaultMaxTokens`).
 - **Output Expectations:** Prompts must enforce structured Markdown output covering:
