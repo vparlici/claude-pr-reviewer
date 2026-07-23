@@ -16,10 +16,10 @@ This repository hosts a lightweight, high-performance GitHub Action built in **G
 - **Minimal Dependencies:** Keep external dependencies to an absolute minimum for zero-overhead CI/CD execution.
     - **GitHub API:** Use the official `github.com/google/go-github/v60` SDK.
     - **Anthropic API:** Use native HTTP requests via the standard `net/http` package (avoid unnecessary third-party wrappers).
-- **Environment Context:** The application relies on standard GitHub Action environment variables: `GITHUB_TOKEN`, `ANTHROPIC_API_KEY`, and `GITHUB_EVENT_PATH`.
+- **Environment Context:** The application relies on standard GitHub Action environment variables: `GITHUB_TOKEN`, `ANTHROPIC_API_KEY`, and `GITHUB_EVENT_PATH`. Optional overrides `CLAUDE_MODEL` and `CLAUDE_MAX_TOKENS` (mapped from the `model` and `max-tokens` action inputs) fall back to the defaults in `internal/claude` when unset or invalid.
 
 ## AI Integration & Prompting Guidelines
-- **Model Target:** Default to `claude-sonnet-5` (or the latest stable Sonnet release).
+- **Model Target:** Default to `claude-sonnet-5` (or the latest stable Sonnet release). The model and token budget are configurable per-run via the `model` / `max-tokens` action inputs; defaults live in `internal/claude` (`DefaultModel`, `DefaultMaxTokens`).
 - **Output Expectations:** Prompts must enforce structured Markdown output covering:
     1. Summary
     2. Security & Critical Bugs

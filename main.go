@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -54,15 +55,40 @@ func run() error {
 		return nil
 	}
 
-	review, err := claude.Review(ctx, anthropicKey, diff)
+	opts := reviewOptions()
+	review, err := claude.Review(ctx, anthropicKey, diff, opts)
 	if err != nil {
 		return fmt.Errorf("requesting review from Claude: %w", err)
 	}
 
-	if err := github.PostComment(ctx, gh, pr, review, claude.Model); err != nil {
+	if err := github.PostComment(ctx, gh, pr, review, opts.Model); err != nil {
 		return fmt.Errorf("posting review comment: %w", err)
 	}
 
 	fmt.Println("Review posted successfully.")
 	return nil
+}
+
+// reviewOptions builds the review configuration from the CLAUDE_MODEL and
+// CLAUDE_MAX_TOKENS environment variables, falling back to defaults (and
+// warning) when they are unset or invalid.
+func reviewOptions() claude.Options {
+	opts := claude.Options{
+		Model:     claude.DefaultModel,
+		MaxTokens: claude.DefaultMaxTokens,
+	}
+
+	if v := os.Getenv("CLAUDE_MODEL"); v != "" {
+		opts.Model = v
+	}
+
+	if v := os.Getenv("CLAUDE_MAX_TOKENS"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			opts.MaxTokens = n
+		} else {
+			fmt.Fprintf(os.Stderr, "warning: invalid CLAUDE_MAX_TOKENS %q; using default %d\n", v, claude.DefaultMaxTokens)
+		}
+	}
+
+	return opts
 }

@@ -14,6 +14,14 @@ inputs:
     description: "GitHub token used to read PR files and post the review comment."
     required: false
     default: ${{ github.token }}
+  model:
+    description: "Claude model ID used for the review (e.g. claude-sonnet-5, claude-haiku-4-5, claude-opus-4-8)."
+    required: false
+    default: "claude-sonnet-5"
+  max-tokens:
+    description: "Maximum tokens for the review response (thinking + output). Invalid values fall back to the default."
+    required: false
+    default: "8192"
 
 runs:
   using: "docker"
@@ -23,3 +31,5 @@ runs:
   env:
     ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
     GITHUB_TOKEN: ${{ inputs.github-token }}
+    CLAUDE_MODEL: ${{ inputs.model }}
+    CLAUDE_MAX_TOKENS: ${{ inputs.max-tokens }}

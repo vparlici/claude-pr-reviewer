@@ -15,15 +15,21 @@ import (
 // it at a stub server.
 var endpoint = "https://api.anthropic.com/v1/messages"
 
+const version = "2023-06-01"
+
+// Defaults applied when the corresponding action inputs are not set.
 const (
-	version = "2023-06-01"
-
-	// Model is the Claude model used for reviews. Exported so callers can
-	// display it (e.g. in the review attribution footer).
-	Model = "claude-sonnet-5"
-
-	maxTokens = 8192
+	DefaultModel     = "claude-sonnet-5"
+	DefaultMaxTokens = 8192
 )
+
+// Options configures a review request.
+type Options struct {
+	// Model is the Claude model ID used for the review.
+	Model string
+	// MaxTokens caps the review response (thinking + output).
+	MaxTokens int
+}
 
 const systemPrompt = `You are a senior staff software engineer performing a rigorous code review on a GitHub Pull Request.
 
@@ -70,10 +76,10 @@ type response struct {
 
 // Review sends the diff to the Anthropic Messages API and returns the generated
 // Markdown review text.
-func Review(ctx context.Context, apiKey, diff string) (string, error) {
+func Review(ctx context.Context, apiKey, diff string, opts Options) (string, error) {
 	reqBody := request{
-		Model:     Model,
-		MaxTokens: maxTokens,
+		Model:     opts.Model,
+		MaxTokens: opts.MaxTokens,
 		System:    systemPrompt,
 		Messages: []message{
 			{
